@@ -4,7 +4,7 @@
 
 ## Introduction
 
-When **SMK Harapan Bangsa** needed to provide secure remote access to its virtual laboratory for TKJ students, the traditional approach was clear: rely on VPN or direct SSH. But both methods carried fundamental security flaws—especially when students access the lab from home using personal devices.
+When **SMK Harapan Bangsa** needed to provide secure remote access to its virtual laboratory for TKJ students, the traditional approach was clear: rely on VPN or direct SSH. But both methods carried fundamental security flaws especially when students access the lab from home using personal devices.
 
 ### The Traditional Problem
 
@@ -15,7 +15,7 @@ The virtual lab at SMK Harapan Bangsa, built on **Proxmox VE**, contains valuabl
 
 Traditional remote access methods (VPN or exposed SSH) created serious risks:
 1. Once connected to the VPN, users gained broad network access
-2. No granular control — a compromised student account could affect other VMs
+2. No granular control a compromised student account could affect other VMs
 3. Limited visibility and audit trail of student activities
 4. High risk of lateral movement and command abuse (e.g., `shutdown`, `rm -rf`)
 5. Dependency on weak password-only authentication
@@ -49,7 +49,7 @@ Students now visit `ssh.alfanlab.my.id`, authenticate with their email via Cloud
 This writeup documents the complete journey of the implementation:
 1. **Why Zero Trust + PAM** was chosen over traditional VPN for an educational environment
 2. **How we architected** the full solution (Cloudflare + Jump Server + Proxmox)
-3. **Security assessment** — vulnerabilities addressed and remaining risks
+3. **Security assessment** vulnerabilities addressed and remaining risks
 4. **Real operational experience** from deployment and testing
 5. **Lessons learned** during design, implementation, and evaluation
 
@@ -59,6 +59,6 @@ By the end, you will understand:
 - Real-world trade-offs between security, usability, and maintainability in a school setting
 - Actionable architecture that can be replicated in other SMKs or small organizations
 
-This is not just theory — it’s a production-ready proof of concept that successfully secured remote access for virtual lab practical sessions at SMK Harapan Bangsa.
+This is not just theory, it’s a production-ready proof of concept that successfully secured remote access for virtual lab practical sessions at SMK Harapan Bangsa.
 
 Let's dive in.
