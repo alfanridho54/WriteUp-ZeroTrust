@@ -2,63 +2,46 @@
 # Implementing Cloudflare Zero Trust with Privileged Access Management for SMK Harapan Bangsa Virtual Lab:  
 ## Architecture, Security Analysis & Lessons Learned
 
-## Introduction
+# Section 1: Introduction
 
-When **SMK Harapan Bangsa** needed to provide secure remote access to its virtual laboratory for TKJ students, the traditional approach was clear: rely on VPN or direct SSH. But both methods carried fundamental security flaws especially when students access the lab from home using personal devices.
+## The Challenge: Securing Education in a Perimeter-less World
 
-### The Traditional Problem
+When **SMK Harapan Bangsa** needed to provide secure remote access to its virtual laboratory for TKJ students, the traditional approach was clear: rely on VPN or direct SSH. However, in a modern threat landscape, these methods are no longer sufficient, especially when students access lab environments from unmanaged personal devices.
 
-The virtual lab at SMK Harapan Bangsa, built on **Proxmox VE**, contains valuable learning assets:
+### The Traditional Problem: A False Sense of Security
+
+The virtual lab at SMK Harapan Bangsa, built on **Proxmox VE**, is the heart of the students' technical learning. It hosts critical assets:
 - Student practice virtual machines (vmsiswa1, vmsiswa2, etc.)
-- Pre-configured lab environments for networking, server administration, and cybersecurity practice
-- Teacher/administration credentials and configurations
+- Pre-configured networking and server administration environments.
+- Teacher and administrative configurations.
 
-Traditional remote access methods (VPN or exposed SSH) created serious risks:
-1. Once connected to the VPN, users gained broad network access
-2. No granular control a compromised student account could affect other VMs
-3. Limited visibility and audit trail of student activities
-4. High risk of lateral movement and command abuse (e.g., `shutdown`, `rm -rf`)
-5. Dependency on weak password-only authentication
+Traditional remote access (VPN/Exposed SSH) created a massive **Attack Surface**:
+1.  **Flat Network Risks:** Once connected via VPN, a user often gains broad network access, making **Lateral Movement** trivial for an attacker or a curious student.
+2.  **Lack of Granularity:** There was no way to ensure a student could *only* access their assigned VM and nothing else.
+3.  **Visibility Gap:** Traditional methods offer limited audit trails. We couldn't easily see *what* commands were being executed inside the sessions.
+4.  **Command Abuse:** Risk of accidental or intentional destructive commands (e.g., `rm -rf /` or `shutdown`) affecting the entire host.
+5.  **Authentication Weakness:** Relying solely on passwords left the lab vulnerable to credential stuffing and brute-force attacks.
 
-These issues became more critical as the school wanted to support flexible, location-independent practical learning while maintaining strong security.
+### The Solution: Zero Trust + Privileged Access Management (PAM)
 
-### Enter Zero Trust + Privileged Access Management (PAM)
+To solve this, we moved away from the "Trust, but Verify" model to **"Never Trust, Always Verify."** By implementing **Cloudflare Zero Trust** as the identity-aware proxy and a **Jump Server** as the PAM layer, we created a "Budget-Friendly" but "Enterprise-Grade" security stack:
 
-Zero Trust is a security model that assumes breach and verifies every access request. Combined with **Privileged Access Management (PAM)**, it provides:
-- Identity-based authentication (never trust by location)
-- Least privilege enforcement
-- Session monitoring and command restriction
-- Complete audit trail
+1.  **Identity-Based Access:** Access is tied to the student's authenticated email (SSO), not just a shared password.
+2.  **Cloudflare Tunnel:** Eliminates the need for open inbound ports, effectively hiding the laboratory from the public internet.
+3.  **Controlled Bastion (Jump Server):** An Ubuntu 22.04 host acting as the single, monitored point of entry with a web-based terminal.
+4.  **Custom PAM Layer:** Role-based access control (RBAC) that restricts students to specific VMs and logs every session for accountability.
+5.  **Proxmox Backend:** Secured virtualization that only accepts traffic from the internal Jump Server.
 
-This approach aligns with NIST SP 800-207 and modern remote access best practices.
+Now, students visit `ssh.alfanlab.my.id`, authenticate via Cloudflare, and are automatically routed to their assigned environments. Dangerous commands are blocked, and every action is recorded.
 
-### What We Implemented
+### What You'll Learn in This Write-up
 
-For SMK Harapan Bangsa’s Virtual Lab, we designed and implemented a **Privileged Access Management system based on Cloudflare Zero Trust**. The solution replaces traditional VPN with a modern, browser-based secure access model consisting of:
+This documentation covers the end-to-end journey of this implementation:
+1.  **Architecture Design:** How we integrated Cloudflare, the Jump Server, and Proxmox without expensive hardware.
+2.  **Security Assessment:** Vulnerabilities we closed and the "Known Risks" that remain.
+3.  **Operational Reality:** What happened during real-world testing with students.
+4.  **Lessons Learned:** Practical trade-offs between security, budget, and usability in an educational setting.
 
-1. **Cloudflare Zero Trust Access** as the identity-aware gateway (using One-Time PIN via email)
-2. **Cloudflare Tunnel** as a secure private network connector (no inbound ports needed)
-3. **Jump Server** (Ubuntu 22.04) acting as a controlled bastion host with web terminal
-4. **Custom PAM Layer** including role-based VM access, command restriction, and session logging
-5. **Proxmox VE** as the backend virtualization platform
+This is more than a tutorial; it is a **production-ready Proof of Concept** designed to empower SMKs and small organizations to embrace secure, remote technical learning.
 
-Students now visit `ssh.alfanlab.my.id`, authenticate with their email via Cloudflare, and are automatically routed only to their assigned VM through the Jump Server. All activities are logged and dangerous commands are blocked in real-time.
-
-### What You'll Learn
-
-This writeup documents the complete journey of the implementation:
-1. **Why Zero Trust + PAM** was chosen over traditional VPN for an educational environment
-2. **How we architected** the full solution (Cloudflare + Jump Server + Proxmox)
-3. **Security assessment** vulnerabilities addressed and remaining risks
-4. **Real operational experience** from deployment and testing
-5. **Lessons learned** during design, implementation, and evaluation
-
-By the end, you will understand:
-- How to implement practical Zero Trust for educational virtual labs
-- Integration between Cloudflare Zero Trust, Jump Server, and Proxmox
-- Real-world trade-offs between security, usability, and maintainability in a school setting
-- Actionable architecture that can be replicated in other SMKs or small organizations
-
-This is not just theory, it’s a production-ready proof of concept that successfully secured remote access for virtual lab practical sessions at SMK Harapan Bangsa.
-
-Let's dive in.
+---
