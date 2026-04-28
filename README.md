@@ -4,44 +4,48 @@
 
 # Section 1: Introduction
 
-## The Challenge: Securing Education in a Perimeter-less World
+## Securing Education in a Perimeter-less World: The SMK Harapan Bangsa Story
 
-When **SMK Harapan Bangsa** needed to provide secure remote access to its virtual laboratory for TKJ students, the traditional approach was clear: rely on VPN or direct SSH. However, in a modern threat landscape, these methods are no longer sufficient, especially when students access lab environments from unmanaged personal devices.
+Imagine it’s Monday morning. A student is at home, trying to access the school’s virtual laboratory for a networking practice session. The teacher needs to ensure the student can only access their assigned VM, while the IT staff is worried that one wrong command—or one compromised personal laptop—could take down the entire lab infrastructure.
+
+In the past, the answer was simple: "Just use a VPN" or "Open an SSH port." But in today’s world, those answers are not just outdated—they are dangerous. 
+
+This is the story of how **SMK Harapan Bangsa** transformed its digital laboratory from a vulnerable network into a secure, identity-driven environment.
 
 ### The Traditional Problem: A False Sense of Security
 
-The virtual lab at SMK Harapan Bangsa, built on **Proxmox VE**, is the heart of the students' technical learning. It hosts critical assets:
-- Student practice virtual machines (vmsiswa1, vmsiswa2, etc.)
-- Pre-configured networking and server administration environments.
+The virtual lab at SMK Harapan Bangsa, powered by **Proxmox VE**, is the heart of technical learning for TKJ students. It hosts critical assets:
+- Individual student practice VMs (`vmsiswa1`, `vmsiswa2`, etc.)
+- Pre-configured server administration and cybersecurity environments.
 - Teacher and administrative configurations.
 
-Traditional remote access (VPN/Exposed SSH) created a massive **Attack Surface**:
-1.  **Flat Network Risks:** Once connected via VPN, a user often gains broad network access, making **Lateral Movement** trivial for an attacker or a curious student.
-2.  **Lack of Granularity:** There was no way to ensure a student could *only* access their assigned VM and nothing else.
-3.  **Visibility Gap:** Traditional methods offer limited audit trails. We couldn't easily see *what* commands were being executed inside the sessions.
-4.  **Command Abuse:** Risk of accidental or intentional destructive commands (e.g., `rm -rf /` or `shutdown`) affecting the entire host.
-5.  **Authentication Weakness:** Relying solely on passwords left the lab vulnerable to credential stuffing and brute-force attacks.
+When we analyzed traditional remote access (VPN/Exposed SSH), we found a massive **Attack Surface** that put the entire school’s lab at risk:
 
-### The Solution: Zero Trust + Privileged Access Management (PAM)
+1.  **The "Flat Network" Trap:** Once a student connects via VPN, they often gain broad access to the internal network. This makes **Lateral Movement** trivial—a curious student or an attacker could easily "jump" from their VM to the teacher’s server.
+2.  **The Visibility Gap:** We had no way to see what was happening *inside* a session. If a critical file was deleted or a server was shut down, there was no granular audit trail to identify who did it or how.
+3.  **Command Abuse & "Fat Finger" Errors:** In a learning environment, mistakes happen. Without restrictions, a student could accidentally (or intentionally) run destructive commands like `rm -rf /` or `shutdown`, disrupting the lab for everyone.
+4.  **Authentication Weakness:** Relying on simple passwords from unmanaged personal devices left the lab wide open to credential stuffing and brute-force attacks.
 
-To solve this, we moved away from the "Trust, but Verify" model to **"Never Trust, Always Verify."** By implementing **Cloudflare Zero Trust** as the identity-aware proxy and a **Jump Server** as the PAM layer, we created a "Budget-Friendly" but "Enterprise-Grade" security stack:
+### The Solution: "Budget-Friendly" Enterprise-Grade Security
 
-1.  **Identity-Based Access:** Access is tied to the student's authenticated email (SSO), not just a shared password.
-2.  **Cloudflare Tunnel:** Eliminates the need for open inbound ports, effectively hiding the laboratory from the public internet.
-3.  **Controlled Bastion (Jump Server):** An Ubuntu 22.04 host acting as the single, monitored point of entry with a web-based terminal.
-4.  **Custom PAM Layer:** Role-based access control (RBAC) that restricts students to specific VMs and logs every session for accountability.
-5.  **Proxmox Backend:** Secured virtualization that only accepts traffic from the internal Jump Server.
+We realized that "Trust" was the vulnerability. So, we moved to a **Zero Trust** model: **"Never Trust, Always Verify."**
 
-Now, students visit `ssh.alfanlab.my.id`, authenticate via Cloudflare, and are automatically routed to their assigned environments. Dangerous commands are blocked, and every action is recorded.
+By combining **Cloudflare Zero Trust** with a **Custom Jump Server (PAM)**, we built a security stack that is both production-ready and affordable for educational institutions:
 
-### What You'll Learn in This Write-up
+* **Identity-Aware Access:** Access is no longer just about a password. It’s tied to the student's authenticated SSO email.
+* **Invisible Infrastructure:** Using **Cloudflare Tunnels**, we completely closed all inbound ports. The lab is now invisible to the public internet—you can’t hack what you can’t see.
+* **The Controlled Bastion:** All traffic flows through a single **Jump Server** acting as a Privileged Access Management (PAM) layer.
+* **Granular RBAC:** Students are automatically routed *only* to their specific assigned environments. Their permissions are restricted, and every keystroke is logged.
 
-This documentation covers the end-to-end journey of this implementation:
-1.  **Architecture Design:** How we integrated Cloudflare, the Jump Server, and Proxmox without expensive hardware.
-2.  **Security Assessment:** Vulnerabilities we closed and the "Known Risks" that remain.
-3.  **Operational Reality:** What happened during real-world testing with students.
-4.  **Lessons Learned:** Practical trade-offs between security, budget, and usability in an educational setting.
+Today, students simply visit `ssh.alfanlab.my.id`, authenticate, and start learning. The experience is seamless for them, but the control is absolute for the school.
 
-This is more than a tutorial; it is a **production-ready Proof of Concept** designed to empower SMKs and small organizations to embrace secure, remote technical learning.
+### What You’ll Learn in This Write-up
 
----
+This documentation is more than just a tutorial; it’s a blueprint for any SMK or small organization to implement high-level security on a limited budget. We will dive deep into:
+
+1.  **Architecture Design:** How we integrated Cloudflare, the Jump Server, and Proxmox.
+2.  **Security Assessment:** The specific vulnerabilities we closed and the risks we mitigated.
+3.  **Operational Reality:** Lessons learned from real-world testing with students.
+4.  **The Blueprint:** Practical steps to replicate this setup in your own institution.
+
+Let’s dive in.
