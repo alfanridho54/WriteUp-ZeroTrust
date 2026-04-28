@@ -8,7 +8,7 @@
 
 Imagine it’s Monday morning. A student is at home, trying to access the school’s virtual laboratory for a networking practice session. The teacher needs to ensure the student can only access their assigned VM, while the IT staff is worried that one wrong command or one compromised personal laptop could take down the entire lab infrastructure.
 
-In the past, the answer was simple: "Just use a VPN" or "Open an SSH port." But in today’s world, those answers are not just outdated—they are dangerous. 
+In the past, the answer was simple: "Just use a VPN" or "Open an SSH port." But in today’s world, those answers are not just outdated, they are dangerous. 
 
 This is the story of how **SMK Harapan Bangsa** transformed its digital laboratory from a vulnerable network into a secure, identity-driven environment.
 
